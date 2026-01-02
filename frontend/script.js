@@ -66,6 +66,247 @@ function toggleBonziTV(status) {
   }
 }
 
+// ===== ENHANCED CHAT FUNCTIONS =====
+let trusted = false;
+let admin = false;
+let king = false;
+let autorejoin = true;
+let blockerror = false;
+let quote = null;
+let lastUser = "";
+let logJoins = false;
+
+// String utility functions
+if (typeof String.prototype.replaceAll === "undefined") {
+    String.prototype.replaceAll = function (match, replace) {
+        match = match.replace(/[-[\]{}()*+?.\\\/^$|]/g, "\\$&");
+        return this.replace(new RegExp(match, "g"), replace);
+    }
+}
+
+function clamp(min, x, max) {
+    return Math.min(Math.max(x, min), max);
+}
+
+function sanitize(text) {
+    return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&apos;");
+}
+
+// Markdown/formatting rules
+let rules = {
+    "**": "b",
+    "~~": "i",
+    "--": "s",
+    "__": "u",
+    "``": "code",
+    "^^": "gay-big",
+    "$r$": "gay-rainbow",
+    "||": "gay-spoiler",
+}
+
+function markup(text) {
+    text = sanitize(text);
+    text = text
+        .replace(/(^|\n)(&gt;.*?)($|\n)/g, "$1<span class=\"greentext\">$2</span>$3")
+        .replaceAll("\n", "<br>");
+    for (let [token, tag] of Object.entries(rules)) {
+        let closing = false;
+        while (text.includes(token)) {
+            text = text.replace(token, closing ? `</${tag}>` : `<${tag}>`);
+            closing = !closing;
+        }
+        if (closing) {
+            text += `</${tag}>`;
+        }
+    }
+    text = text
+        .replaceAll("{FRANCE}", "<img src=\"./img/france.svg\" class=\"flag\" alt=\"🇫🇷\">")
+        .replace(/(https?:\/\/[^\s<>"']+)/g, "<a target=\"_blank\" href=\"$1\">$1</a>");
+    return text;
+}
+
+function nmarkup(text) {
+    while (text.includes("^^") || text.includes("||") || text.includes("\n")) {
+        text = text.replaceAll("^^", "").replaceAll("||", "").replaceAll("\n", "");
+    }
+    return markup(text);
+}
+
+function misolate(text) {
+    let tokens = [];
+    for (let i = 0; i < text.length; i++) {
+        for (let token of Object.keys(rules)) {
+            if (text.slice(i, i + token.length) === token) {
+                if (tokens.includes(token)) {
+                    tokens.splice(tokens.indexOf(token));
+                } else {
+                    tokens.unshift(token);
+                }
+            }
+        }
+    }
+    return text + tokens.join("");
+}
+
+function nisolate(text) {
+    while (text.includes("^^") || text.includes("||") || text.includes("\n")) {
+        text = text.replaceAll("^^", "").replaceAll("||", "").replaceAll("\n", "");
+    }
+    return misolate(text);
+}
+
+function toBgImg(name, color) {
+    return color.split(" ").map(sprite => `url("img/bonzi/${sprite}.webp")`).reverse().join(", ");
+}
+
+// Enhanced bonzilog function with message formatting
+function bonzilog(id, name, html, color, text, single, msgid) {
+    let icon = "";
+    let scrolled = chat_log_content.scrollHeight - chat_log_content.clientHeight - chat_log_content.scrollTop <= 20;
+    
+    if (color) {
+        let [baseColor, ...hats] = color.split(" ");
+        icon = `<div class="log_icon">
+            <img class="color" src="img/pfp/${baseColor}.webp">
+            ${hats.map(hat => `<img class="hat" src="img/pfp/${hat}.webp">`).join("")}
+        </div>`;
+    } else {
+        icon = `<div class="log_left_spacing"></div>`;
+    }
+    
+    let thisUser = `${id};${name};${color}`;
+    let showDelete = (admin || king) && msgid;
+    
+    if (thisUser !== lastUser || single) {
+        let timeString = `<span class="log_time">${time()}</span>`;
+        chat_log_content.insertAdjacentHTML("beforeend", `
+            <hr>
+            <div class="log_message" ${msgid ? `id="msg_${msgid}"` : ""}>
+                ${icon}
+                <div class="log_message_cont">
+                    <div class="reply"></div>
+                    ${showDelete ? "<div class=\"delete\"></div><div class=\"ban\"></div>" : ""}
+                    <span><b>${nmarkup(name)}</b> ${name ? timeString : ""}</span>
+                    <div class="log_message_content">${html} ${name ? "" : timeString}</div> 
+                </div>
+            </div>`);
+        lastUser = single ? "" : thisUser;
+    } else {
+        chat_log_content.insertAdjacentHTML("beforeend", `
+            <div class="log_message log_continue" ${msgid ? `id="msg_${msgid}"` : ""}>
+                <div class="reply"></div>
+                ${showDelete ? "<div class=\"delete\"></div><div class=\"ban\"></div>" : ""}
+                <div class="log_left_spacing"></div>
+                <div class="log_message_cont">
+                    <div class="log_message_content">${html}</div>
+                </div>
+            </div>`);
+    }
+    
+    // Add reply functionality
+    chat_log_content.lastChild.querySelector(".reply").onclick = () => {
+        quote = { name, text };
+        if (id === "server") quote.name = "SERVER";
+        talkcard.innerHTML = `Replying to ${nmarkup(quote.name)}`;
+        chat_message.focus();
+        talkcard.hidden = false;
+    };
+    
+    // Middle click to delete (admin only)
+    chat_log_content.lastChild.onauxclick = (e) => {
+        if (e.button === 1 && (admin || king)) {
+            cmd(`delete ${msgid}`);
+        }
+    };
+    
+    if (showDelete) {
+        chat_log_content.lastChild.querySelector(".delete").onclick = () => {
+            cmd(`delete ${msgid}`);
+        };
+        chat_log_content.lastChild.querySelector(".ban").onclick = () => {
+            cmd(`banmsg ${msgid}`);
+        };
+    }
+    
+    if (scrolled) {
+        chat_log_content.scrollTop = chat_log_content.scrollHeight;
+    }
+}
+
+// Settings system
+let wordBlacklist = [];
+
+function initSettings() {
+    localStorage.imageBlacklist = localStorage.imageBlacklist || "false";
+    localStorage.classicBg = localStorage.classicBg || "false";
+    localStorage.wordBlacklist = localStorage.wordBlacklist || "[]";
+    localStorage.volume = localStorage.volume || "90";
+}
+
+function updateSettings() {
+    document.body.classList.toggle("classic", localStorage.classicBg === "true");
+    setVolume(localStorage.volume / 100);
+}
+
+// Initialize settings
+try {
+    wordBlacklist = JSON.parse(localStorage.wordBlacklist || "[]");
+    if (!Array.isArray(wordBlacklist)) throw TypeError("wordBlacklist is not an array");
+    for (let word of wordBlacklist) {
+        if (typeof word !== "string") throw TypeError("wordBlacklist is broken");
+    }
+} catch (err) {
+    console.error("Loading settings failed: ", err);
+    localStorage.clear();
+    initSettings();
+}
+initSettings();
+updateSettings();
+
+// Command helper
+function cmd(str) {
+    socket.emit("command", { list: str.split(" ") });
+}
+
+// Volume control
+function setVolume(level) {
+    // Implement volume control if needed
+    console.log("Volume set to:", level);
+}
+
+// ===== SOCKET HANDLERS =====
+// Add new socket handlers for enhanced features
+socket.on("delete", function (data) {
+    for (let id of data.ids) {
+        document.getElementById(`msg_${id}`)?.remove();
+    }
+});
+
+socket.on("king", function () { king = true; });
+socket.on("trusted", function () { trusted = true; });
+
+// Update the talk socket handler to use enhanced logging
+socket.on("talk", function (a) {
+    var b = bonzis[a.guid];
+    if (b) {
+        b.cancel();
+        // Use enhanced talk method if available, otherwise fallback
+        if (b.talk && a.msgid) {
+            b.talk(a.text, a.text, { 
+                quote: a.quote, 
+                msgid: a.msgid 
+            });
+        } else {
+            b.runSingleEvent([{ type: "text", text: a.text }]);
+        }
+    }
+});
+
 // ===== EXAMPLE USAGE =====
 // Call toggleBonziTV(true) to reset and start
 // Call bonziTVNext() whenever you want the next video in the rotation
@@ -1715,79 +1956,3 @@ var usersAmt = 0,
 $(window).load(function () {
     document.addEventListener("touchstart", touchHandler, !0), document.addEventListener("touchmove", touchHandler, !0), document.addEventListener("touchend", touchHandler, !0), document.addEventListener("touchcancel", touchHandler, !0);
 });
-function time() {
-    let date = new Date();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let hourString = String(hours % 12).padStart(2, "0");
-    let minuteString = String(minutes).padStart(2, "0");
-    let ampm = hours >= 12 ? "PM" : "AM";
-    return `${hourString}:${minuteString} ${ampm}`;
-}
-
-function bonzilog(id, name, html, color, text, single, msgid) {
-    // hacky
-    // remind me to rewrite this as this is the biggest peice of dogshit
-    let icon = "";
-    let scrolled = chat_log_content.scrollHeight - chat_log_content.clientHeight - chat_log_content.scrollTop <= 20;
-    if (color) {
-        let [baseColor, ...hats] = color.split(" ");
-        icon = `<div class="log_icon">
-            <img class="color" src="img/pfp/${baseColor}.webp">
-            ${hats.map(hat => `<img class="hat" src="img/pfp/${hat}.webp">`).join(" ")
-            }
-        </div>`;
-    } else {
-        icon = `<div class="log_left_spacing"></div>`;
-    }
-    let thisUser = `${id};${name};${color}`;
-    let showDelete = (admin || king) && msgid;
-    if (thisUser !== lastUser || single) {
-        let timeString = `<span class="log_time">${time()}</span>`;
-        chat_log_content.insertAdjacentHTML("beforeend", `
-            <hr>
-            <div class="log_message" ${msgid ? `id="msg_${msgid}"` : ""}>
-                ${icon}
-                <div class="log_message_cont">
-                    <div class="reply"></div>
-                    ${showDelete ? "<div class=\"delete\"></div><div class=\"ban\"></div>" : ""}
-                    <span><b>${nmarkup(name)}</b> ${name ? timeString : ""}</span>
-                    <div class="log_message_content">${html} ${name ? "" : timeString}</div> 
-                </div>
-            </div>`);
-        lastUser = single ? "" : thisUser;
-    } else {
-        chat_log_content.insertAdjacentHTML("beforeend", `
-            <div class="log_message log_continue" ${msgid ? `id="msg_${msgid}"` : ""}>
-                <div class="reply"></div>
-                ${showDelete ? "<div class=\"delete\"></div><div class=\"ban\"></div>" : ""}
-                <div class="log_left_spacing"></div>
-                <div class="log_message_cont">
-                    <div class="log_message_content">${html}</div>
-                </div>
-            </div>`);
-    }
-    chat_log_content.lastChild.querySelector(".reply").onclick = () => {
-        quote = { name, text };
-        if (id === "server") quote.name = "SERVER";
-        talkcard.innerHTML = `Replying to ${nmarkup(quote.name)}`;
-        chat_message.focus();
-        talkcard.hidden = false;
-    };
-    chat_log_content.lastChild.onauxclick = (e) => {
-        if (e.button === 1) {
-            cmd(`delete ${msgid}`);
-        }
-    };
-    if (showDelete) {
-        chat_log_content.lastChild.querySelector(".delete").onclick = () => {
-            cmd(`delete ${msgid}`);
-        };
-        chat_log_content.lastChild.querySelector(".ban").onclick = () => {
-            cmd(`banmsg ${msgid}`);
-        };
-    }
-    if (scrolled) {
-        chat_log_content.scrollTop = chat_log_content.scrollHeight;
-    }
-}
