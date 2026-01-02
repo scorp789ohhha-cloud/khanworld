@@ -1,3 +1,8 @@
+let lastZ = 1;
+let dragged = null;
+let dragX = 0;
+let dragY = 0;
+let chatLogDragged = false;
 /* =========================
    BONZITV CORE HANDLER
    ========================= */
