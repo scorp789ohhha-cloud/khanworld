@@ -476,6 +476,99 @@ body.vaporwave #chat_send {
   #login_go:active {
     background-position: 0 -40px; }
 
+#chat_log_button {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 40px;
+    height: 30px;
+    border: 1px solid white;
+    border-radius: 4px;
+    background:
+        center / 16px no-repeat url("bars.svg"),
+        radial-gradient(circle at 4px 4px, #fff6 0%, #0000 70%),
+        linear-gradient(to top, #512677, #0000 12px),
+        linear-gradient(to left, #512677, #0000 12px),
+        linear-gradient(to bottom, #945cc5 2px, #0000 3px),
+        linear-gradient(to right, #945cc5 2px, #0000 3px),
+        #6310ac;
+}
+
+/* inconsistent as fuck in true XP style */
+#chat_log_button:hover {
+    background:
+        center / 16px no-repeat url("bars.svg"),
+        radial-gradient(circle at 4px 4px, #fff6 0%, #0000 100%),
+        linear-gradient(to top, #5e3b7c, #0000 12px),
+        linear-gradient(to left, #5e3b7c, #0000 12px),
+        linear-gradient(to bottom, #b27fdf 2px, #0000 3px),
+        linear-gradient(to right, #b27fdf 2px, #0000 3px),
+        #8832d4;
+}
+
+#chat_log_button:active {
+    background:
+        center / 16px no-repeat url("bars.svg"),
+        radial-gradient(circle at 4px 4px, #fff3 0%, #0000 70%),
+        linear-gradient(to top, #6e4196 2px, #0000 3px),
+        linear-gradient(to left, #6e4196 2px, #0000 3px),
+        linear-gradient(to right, #361950, #0000 12px),
+        linear-gradient(to bottom, #361950, #0000 12px),
+        #5a1f8f;
+}
+
+#chat_log {
+    position: absolute;
+    width: 350px;
+    z-index: 9999;
+    height: calc(100% - 30px);
+}
+
+body.vaporwave #chat_log_button {
+    background: center no-repeat url("img/desktop.vaporwave/logger.png") #c0c0c0;
+    border: 2px solid;
+    border-color: white black black white;
+    border-radius: 0;
+    width: 36px;
+    height: 36px;
+}
+
+body.vaporwave #chat_log_button:active {
+    background-position: calc(50% + 1px) calc(50% + 1px);
+    border-color: black white white black;
+}
+
+#chat_log .window_body {
+    justify-content: flex-start;
+    display: flex;
+}
+
+#chat_log_resize {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0px;
+    width: 12px;
+    cursor: ew-resize;
+    user-select: none;
+}
+
+#chat_log_content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden scroll;
+    font-size: 12pt;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+#chat_log_content hr:first-child {
+    display: none;
+}
+
 #login_load {
   color: #fff;
   font-weight: bold;
