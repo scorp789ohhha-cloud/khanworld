@@ -9,12 +9,12 @@ let chatLogDragged = false;
 
 // ===== SHOWS =====
 var BonziTVSHOWS = [
-  "6-6DhzkhVBo", "flJ3fpGB9co", "A315g7Y3d9g", "iKCNlur5wRY", "zGS0hqfPvCE", "lIgJ9O9MffE", "8u9E3C-HIm4"
+  "6-6DhzkhVBo","flJ3fpGB9co","A315g7Y3d9g","iKCNlur5wRY","zGS0hqfPvCE","lIgJ9O9MffE","8u9E3C-HIm4"
 ];
 
 // ===== IDENTS =====
 var BonziTVIDENTS = [
-  "b2OUKjLzcEc", "Uyw-bne3G2A", "ZZz3A6H4f-E", "qQKd7VxAMBY", "p6W9MZmu9pc", "HKJopZ6MvPE", "vRpADLCVfoM", "EuEkdlCn-gI", "UN3P95SjxP8", "_TOKdk36iVM", "_UEaBbz-gV0", "kH3_lRNawtA", "i0xpDILkXG8", "yB[...]
+  "b2OUKjLzcEc","Uyw-bne3G2A","ZZz3A6H4f-E","qQKd7VxAMBY","p6W9MZmu9pc","HKJopZ6MvPE","vRpADLCVfoM","EuEkdlCn-gI","UN3P95SjxP8","_TOKdk36iVM","_UEaBbz-gV0","kH3_lRNawtA","i0xpDILkXG8", "yB[...]
 ];
 
 // ===== STATE =====
@@ -284,11 +284,11 @@ function setup() {
             });
 
             var BonziTVSHOWS = [
-              "6-6DhzkhVBo", "flJ3fpGB9co", "A315g7Y3d9g", "iKCNlur5wRY", "zGS0hqfPvCE", "lIgJ9O9MffE", "8u9E3C-HIm4"
+              "6-6DhzkhVBo","flJ3fpGB9co","A315g7Y3d9g","iKCNlur5wRY","zGS0hqfPvCE","lIgJ9O9MffE","8u9E3C-HIm4"
             ];
 
             var BonziTVIDENTS = [
-              "b2OUKjLzcEc", "Uyw-bne3G2A", "ZZz3A6H4f-E", "qQKd7VxAMBY", "p6W9MZmu9pc", "HKJopZ6MvPE", "vRpADLCVfoM", "EuEkdlCn-gI", "UN3P95SjxP8", "_TOKdk36iVM", "_UEaBbz-gV0", "kH3_lRNawtA", "i0xpD[...]
+              "b2OUKjLzcEc","Uyw-bne3G2A","ZZz3A6H4f-E","qQKd7VxAMBY","p6W9MZmu9pc","HKJopZ6MvPE","vRpADLCVfoM","EuEkdlCn-gI","UN3P95SjxP8","_TOKdk36iVM","_UEaBbz-gV0","kH3_lRNawtA","i0xpDILkXG8"
             ];
 
             var bonziMode = "show";
