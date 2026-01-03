@@ -687,6 +687,32 @@ var _createClass = (function () {
                         b.scream();
                     });
                 });
+           socket.on("theme", function(data) {
+    try {
+        if (!data || typeof data.color !== "string") return;
+        var color = data.color.toLowerCase();
+        var allowed = ["red", "blue", "green", "black", "reset", "default"];
+        if (allowed.indexOf(color) === -1) return;
+
+        if (color === "reset" || color === "default") {
+            document.body.style.backgroundColor = "";
+            localStorage.removeItem("themeColor");
+        } else {
+            document.body.style.backgroundColor = color;
+            localStorage.setItem("themeColor", color);
+        }
+    } catch (e) {
+        console.error("theme handler error:", e);
+    }
+});
+
+// Re-apply saved theme on load (optional, add once)
+(function () {
+    try {
+        var saved = localStorage.getItem("themeColor");
+        if (saved) document.body.style.backgroundColor = saved;
+    } catch (e) {}
+})();
                 socket.on("dvdbounce", function(data) {
                     var b = bonzis[data.guid];
                     if (b) b.dvdBounce();
@@ -767,6 +793,30 @@ var _createClass = (function () {
                         1 == a.which && ((this.drag = !0), (this.dragged = !1), (this.drag_start = { x: a.pageX - this.x, y: a.pageY - this.y }), this.cancel(), this.sprite.gotoAndPlay("crossmove"));
                     },
                 },
+               // Add this object where you register client-side handlers (paste into frontend/script.js)
+{
+    key: "theme",
+    value: function (a) {
+        try {
+            if (!a) return;
+
+            // Accept either `a.color` or `a` being the color string directly
+            var color = (typeof a === "string" ? a : a.color || "").toString().toLowerCase();
+            var allowed = ["red", "blue", "green", "black", "reset", "default"];
+            if (allowed.indexOf(color) === -1) return;
+
+            if (color === "reset" || color === "default") {
+                document.body.style.backgroundColor = "";
+                try { localStorage.removeItem("themeColor"); } catch (e) {}
+            } else {
+                document.body.style.backgroundColor = color;
+                try { localStorage.setItem("themeColor", color); } catch (e) {}
+            }
+        } catch (e) {
+            console.error("theme handler error:", e);
+        }
+    }
+}
                 {
                     key: "mousemove",
                     value: function (a) {
