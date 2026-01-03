@@ -146,6 +146,8 @@ function loadBonzis(a) {
         { id: "bonziRed", src: "./img/bonzi/red.png" },
         { id: "bonziPink", src: "./img/bonzi/pink.png" },
         { id: "bonziPeedy", src: "./img/bonzi/peedy.png" },
+        { id: "bonziMerlin", src: "./img/bonzi/merlin.png" },
+        { id: "bonziRobby", src: "./img/bonzi/robby.png" },
         { id: "topjej", src: "./img/misc/topjej.png" },
     ]),
         loadQueue.on(
@@ -1314,6 +1316,70 @@ var _createClass = (function () {
                 crossmove: {frames: [11, 12], next: "crossmove", speed: 4}
             }
         },
+        merlin: {
+            spritew: 160,
+            spriteh: 128,
+            anims: {
+                idle: 0,
+                surf_across_fwd: [1, 8, "surf_across_still", 1.0],
+                surf_across_still: 9,
+                surf_across_back: { frames: range(8, 1), next: "idle", speed: 1.0 },
+                clap_fwd: [445, 457, "clap_still", 1.0],
+                clap_still: [349, 350, "clap_still", 1.0],
+                clap_back: { frames: range(349, 345), next: "idle", speed: 1.0 },
+                surf_intro: [128, 136, "idle", 1.0],
+                surf_away: [137, 149, "gone", 1.0],
+                gone: 613,
+                shrug_fwd: [174, 178, "shrug_still", 1.0],
+                shrug_still: 178,
+                shrug_back: { frames: range(178, 174), next: "idle", speed: 1.0 },
+                earth_fwd: [186, 190, "earth_still", 0.6],
+                earth_still: [190, 199, "earth_still", 0.6],
+                earth_back: { frames: range(190, 186), next: "idle", speed: 1.0 },
+                present_fwd: [117, 120, "present_still", 1.0],
+                present_still: 120,
+                present_back: { frames: range(120, 117), next: "idle", speed: 1.0 },
+                praise_fwd: [82, 86, "praise_still", 1.0],
+                praise_still: 86,
+                praise_back: { frames: range(86, 82), next: "idle", speed: 1.0 },
+                grin_fwd: [345, 350, "grin_still", 1.0],
+                grin_still: 350,
+                grin_back: { frames: range(350, 345), next: "idle", speed: 1.0 },
+                crossmove: {frames: [11, 12], next: "crossmove", speed: 4}
+            }
+        },
+        robby: {
+            spritew: 160,
+            spriteh: 128,
+            anims: {
+                idle: 0,
+                surf_across_fwd: [1, 8, "surf_across_still", 1.0],
+                surf_across_still: 9,
+                surf_across_back: { frames: range(8, 1), next: "idle", speed: 1.0 },
+                clap_fwd: [121, 128, "shrug_still", 1.0],
+                clap_still: 128,
+                clap_back: { frames: range(121, 128), next: "idle", speed: 1.0 },
+                surf_intro: [53, 70, "idle", 1.0],
+                surf_away: [369, 389, "gone", 1.0],
+                gone: 593,
+                shrug_fwd: [175, 177, "shrug_still", 1.0],
+                shrug_still: 177,
+                shrug_back: { frames: range(177, 175), next: "idle", speed: 1.0 },
+                earth_fwd: [290, 298, "earth_still", 1.0],
+                earth_still: [300, 306, "earth_still", 1.0],
+                earth_back: { frames: range(298, 290), next: "idle", speed: 1.0 },
+                present_fwd: [207, 211, "present_still", 1.0],
+                present_still: 211,
+                present_back: { frames: range(211, 207), next: "idle", speed: 1.0 },
+                praise_fwd: [219, 221, "praise_still", 1.0],
+                praise_still: 221,
+                praise_back: { frames: range(221, 119), next: "idle", speed: 1.0 },
+                grin_fwd: [345, 350, "grin_still", 1.0],
+                grin_still: 350,
+                grin_back: { frames: range(350, 345), next: "idle", speed: 1.0 },
+                crossmove: {frames: [11, 12], next: "crossmove", speed: 4}
+            }
+        },
         to_idle: {
             surf_across_fwd: "surf_across_back",
             surf_across_still: "surf_across_back",
@@ -1545,6 +1611,16 @@ var _createClass = (function () {
                         frames: { width: 160, height: 128 },
                         animations: BonziData.peedy.anims
                     });
+                    this.spriteSheets["merlin"] = new createjs.SpriteSheet({
+                        images: ["./img/bonzi/merlin.png"],
+                        frames: { width: 160, height: 128 },
+                        animations: BonziData.merlin.anims
+                    });
+                    this.spriteSheets["robby"] = new createjs.SpriteSheet({
+                        images: ["./img/bonzi/robby.png"],
+                        frames: { width: 160, height: 128 },
+                        animations: BonziData.robby.anims
+                    });
                 }),
                 this.prepSprites(),
                 (this.$canvas = $("#bonzi_canvas")),
@@ -1659,7 +1735,7 @@ var PeedyData = {
 
 var loadQueue = new createjs.LoadQueue(),
     loadDone = [],
-    loadNeeded = ["bonziBlack", "bonziBlue", "bonziBrown", "bonziGreen", "bonziPurple", "bonziRed", "bonziPink", "topjej", "bonziPeedy","bonziCyan"];
+    loadNeeded = ["bonziBlack", "bonziBlue", "bonziBrown", "bonziGreen", "bonziPurple", "bonziRed", "bonziPink", "topjej", "bonziPeedy","bonziCyan", "bonziMerlin", "bonziRobby"];
 $(window).load(function () {
     $("#login_card").show(), $("#login_load").hide(), loadBonzis();
 });
