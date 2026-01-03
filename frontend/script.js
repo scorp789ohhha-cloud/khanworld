@@ -151,6 +151,13 @@ function markdown(a) {
     });
     return a;
 }
+function stripMarkdown(a) {
+    var patterns = [/^\*\*/, /^~~/, /^__/, /^--/, /^\^\^/, /^\$r\$/, /^\|\|/, /^`/];
+    patterns.forEach(function(p) {
+        a = a.replace(p, "");
+    });
+    return a;
+}
 function loadBonzis(a) {
     loadQueue.loadManifest([
         { id: "bonziBlack", src: "./img/bonzi/black.png" },
@@ -965,6 +972,7 @@ var _createClass = (function () {
                             (a = replaceAll(a, "{NAME}", this.userPublic.name)),
                             (a = replaceAll(a, "{COLOR}", this.color)),
                             "undefined" != typeof b ? ((b = replaceAll(b, "{NAME}", this.userPublic.name)), (b = replaceAll(b, "{COLOR}", this.color))) : (b = a.replace("&gt;", "")),
+                            (b = stripMarkdown(b)),
                             (a = a.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/\//g, "&#x2F;")),
                             (a = markdown(a)),
                             (a = a.replace(/javascript:/gi, "no-javascript:").replace(/on\w+=/gi, "no-on=")),
@@ -1129,6 +1137,7 @@ var _createClass = (function () {
                         if (this.userPublic.admin) {
                             name = "<img src='./img/adminicon.png' style='width:16px;height:16px;vertical-align:middle;margin-right:4px;'>" + name;
                         }
+                        name = markdown(name);
                         this.$nametag.html(name);
                     },
                 },
