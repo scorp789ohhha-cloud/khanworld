@@ -600,6 +600,15 @@ io.on('connection', (socket) => {
       case 'boing':
         io.to(room).emit('boing', { guid });
         break;
+      case 'theme':
+        if (args[0]) {
+          const theme = args[0].toLowerCase();
+          const validThemes = ['default', 'red', 'blue', 'green', 'white', 'darkpurple'];
+          if (validThemes.includes(theme)) {
+            io.to(room).emit('theme', { theme: theme });
+          }
+        }
+        break;
       // For now we're just gonna end this command list here
     }
   });
