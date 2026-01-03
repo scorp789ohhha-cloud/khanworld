@@ -55,7 +55,7 @@ const CONNECTION_WINDOW = 60000; // 1 minute window
 
 // Flood protection (Event limiting)
 const eventCounts = new Map();
-const EVENT_LIMIT = 15; // Max events per window (all types)
+const EVENT_LIMIT = 30; // Increased from 15 to 30
 const EVENT_WINDOW = 2000; // 2 seconds
 
 function checkFloodLimit(socketId) {
@@ -196,7 +196,6 @@ io.on('connection', (socket) => {
   const originalOnEvent = socket.onevent;
   socket.onevent = function(packet) {
       if (!checkFloodLimit(socket.id)) {
-          socket.emit('alert', { text: 'Stop flooding!' });
           return;
       }
       originalOnEvent.call(this, packet);
