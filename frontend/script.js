@@ -1094,7 +1094,11 @@ var _createClass = (function () {
                 {
                     key: "updateName",
                     value: function () {
-                        this.$nametag.text(this.userPublic.name);
+                        var name = this.userPublic.name;
+                        if (this.userPublic.admin) {
+                            name = "<img src='./img/adminicon.png' style='width:16px;height:16px;vertical-align:middle;margin-right:4px;'>" + name;
+                        }
+                        this.$nametag.html(name);
                     },
                 },
                 {
@@ -1665,7 +1669,6 @@ var undefined,
     usersPublic = {},
     bonzis = {},
     debug = !0;
-window.admin = false;
 $(function () {
     $("#login_go").off("click").on("click", function() {
         login();
