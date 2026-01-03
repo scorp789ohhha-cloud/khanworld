@@ -808,3 +808,55 @@ body.theme-blue #content { background-color: #00008b !important; background-imag
 body.theme-green #content { background-color: #006400 !important; background-image: url("../img/desktop/logo.png"), url("../img/desktop/bg.png") !important; }
 body.theme-white #content { background-color: #a9a9a9 !important; background-image: url("../img/desktop/logo.png"), url("../img/desktop/bg.png") !important; }
 body.theme-darkpurple #content { background-color: #301934 !important; background-image: url("../img/desktop/logo.png"), url("../img/desktop/bg.png") !important; }
+
+.rainbow {
+        animation: rainbow 5s linear infinite;
+}
+
+@keyframes rainbow {
+        0% { color: red; }
+        14% { color: orange; }
+        28% { color: yellow; }
+        42% { color: green; }
+        56% { color: blue; }
+        70% { color: indigo; }
+        84% { color: violet; }
+        100% { color: red; }
+}
+
+.spoiler {
+        background-color: #2b3e44;
+        color: transparent;
+        cursor: pointer;
+    border-radius: 4px;
+    padding: 0 4px;
+    display: inline-block;
+    min-width: 40px;
+    min-height: 1.2em;
+    vertical-align: middle;
+    transition: background-color 0.2s;
+}
+
+.spoiler.revealed {
+        background-color: transparent;
+        color: inherit;
+}
+
+.theme-white .spoiler:not(.revealed) {
+    background-color: #444;
+}
+
+.theme-darkpurple .spoiler:not(.revealed) {
+    background-color: #1a0d1a;
+}
+
+code {
+    background: #eee;
+    padding: 2px;
+    font-family: monospace;
+}
+
+.theme-darkpurple code {
+    background: #452066;
+    color: #eee;
+}
