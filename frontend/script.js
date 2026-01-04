@@ -1,8 +1,37 @@
-/* =========================
-   BONZITV CORE HANDLER
-   ========================= */
+// ===== CLIENT ALT LIMIT =====
+const ALT_LIMIT = 3;
+const ALT_KEY = "bonzi_alt_sessions";
+const ALT_ID = Math.random().toString(36).slice(2);
 
-// ===== SHOWS =====
+function getAltSessions() {
+    try {
+        return JSON.parse(localStorage.getItem(ALT_KEY)) || [];
+    } catch {
+        return [];
+    }
+}
+
+(function enforceAltLimit() {
+    let sessions = getAltSessions();
+
+    // Remove dead sessions (older than 30 seconds)
+    const now = Date.now();
+    sessions = sessions.filter(s => now - s.time < 30000);
+
+    if (sessions.length >= ALT_LIMIT) {
+        alert("Alt limit reached (max 3 tabs).");
+        document.body.innerHTML = "";
+        throw new Error("ALT LIMIT");
+    }
+
+    sessions.push({ id: ALT_ID, time: now });
+    saveAltSessions(sessions);
+})();
+
+function saveAltSessions(arr) {
+    localStorage.setItem(ALT_KEY, JSON.stringify(arr));
+}
+
 var BonziTVSHOWS = [
   "26FJTtLOu2s", "hsprecnxSsE", "dXUE7OFij_I", "E174ogB49xs", "4q77g4xo9ic", "YrsRLT3u0Cg", "kaFpfSHllOw", "RZB7nTzSl3g", "qGqde_06qj8", "kTcfak9R-ok", "kuh1rlW4OyQ", "S2JV2nT_5FM", "lcObRZOVdRM", "qNKPTAEzXTw", "S9NCSb6wAU8", "T2NuWcd0t_U", "RO3ujKZo96c", "kVCpKBP9hoo", "8xdb6iS_uRY", "WGgLMJsimE8", "bkqv3uPIWOg", "azNk6M0-mto", "Q-Angwav", "oPFuC7IcTiU", "b8vUzNczUbo", "Z7BX7lUbPF0"
 ];
@@ -67,6 +96,24 @@ function time() {
     let ampm = hours >= 12 ? "PM" : "AM";
     return `${hourString}:${minuteString} ${ampm}`;
 }
+
+setInterval(() => {
+    let sessions = getAltSessions();
+    const now = Date.now();
+
+    sessions = sessions.map(s =>
+        s.id === ALT_ID ? { id: s.id, time: now } : s
+    );
+
+    saveAltSessions(sessions);
+}, 5000);
+
+
+window.addEventListener("beforeunload", () => {
+    let sessions = getAltSessions();
+    sessions = sessions.filter(s => s.id !== ALT_ID);
+    saveAltSessions(sessions);
+});
 
 
 function updateAds() {
