@@ -50,13 +50,23 @@ const messageCounts = new Map(); // Tracks message counts per IP per window
 const MESSAGE_LIMIT = 5; // Max messages per window
 const WINDOW_SIZE = 5000; // 5 seconds window
 const connectionThrottling = new Map(); // Tracks connection attempts per IP
-const CONNECTION_LIMIT = 3; // Max connections per window
+const CONNECTION_LIMIT = 2; // Reduced from 3 to 2
 const CONNECTION_WINDOW = 60000; // 1 minute window
 
 // Flood protection (Event limiting)
 const eventCounts = new Map();
-const EVENT_LIMIT = 30; // Increased from 15 to 30
+const EVENT_LIMIT = 10; // Reduced from 30 to 10
 const EVENT_WINDOW = 2000; // 2 seconds
+
+// Simple Origin/User-Agent verification
+function isBot(socket) {
+    const ua = socket.handshake.headers['user-agent'] || '';
+    // Most flood scripts use default axios/got/node-fetch agents or none at all
+    if (!ua || ua.includes('node-fetch') || ua.includes('axios') || ua.includes('got')) {
+        return true;
+    }
+    return false;
+}
 
 function checkFloodLimit(socketId) {
     const now = Date.now();
@@ -192,6 +202,12 @@ function checkBan(ip) {
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
   
+  if (isBot(socket)) {
+      console.log('Bot detected and blocked:', socket.id);
+      socket.disconnect();
+      return;
+  }
+  
   // Anti-flood middleware for this specific socket
   const originalOnEvent = socket.onevent;
   socket.onevent = function(packet) {
@@ -253,6 +269,9 @@ io.on('connection', (socket) => {
     const room = (data.room || 'main').trim();
     const guid = socket.id;
 
+    const colors = ['purple', 'blue', 'red', 'green', 'black', 'brown', 'pink'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
     // Check for ban if trying to join public room
     if (room === 'main') {
       const ban = checkBan(clientIp);
@@ -267,7 +286,7 @@ io.on('connection', (socket) => {
 
     const userPublic = {
       name: name,
-      color: 'purple', // Default color
+      color: randomColor,
       guid: guid,
       speed: 175,
       pitch: 50,
@@ -424,11 +443,25 @@ io.on('connection', (socket) => {
         }
         break;
       case 'joke':
-        // No change needed here, server already emits 'joke' event
-        io.to(room).emit('joke', { guid, rng: Math.random().toString() });
+        const jokes = [
+            "Why did the chicken cross the road? To get to the other side!",
+            "I'm a steam gamer. I game on steam. I'm a steam gamer. I game on steam. I'm a steam gamer. I game on steam.",
+            "What do you call a fake noodle? An Impasta!",
+            "Why don't scientists trust atoms? Because they make up everything!"
+        ];
+        const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+        io.to(room).emit('talk', { guid: guid, text: randomJoke });
         break;
       case 'fact':
-        io.to(room).emit('fact', { guid, rng: Math.random().toString() });
+        const facts = [
+            "The first computer was invented in the 1940s.",
+            "The world's oldest wooden wheel has been around for more than 5,000 years.",
+            "Dead skin cells are a main ingredient in household dust.",
+            "The heart of a shrimp is located in its head.",
+            "A snail can sleep for three years."
+        ];
+        const randomFact = facts[Math.floor(Math.random() * facts.length)];
+        io.to(room).emit('talk', { guid: guid, text: randomFact });
         break;
       case 'backflip':
         // args[0] can be a flag for 'swag' (optional)
@@ -690,4 +723,4 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
-}); 
+});
