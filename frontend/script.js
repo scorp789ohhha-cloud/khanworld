@@ -229,6 +229,7 @@ function loadBonzis(a) {
         ),
         a && loadQueue.on("complete", a, this);
 }
+debugger;
 function loadTest() {
     $("#login_card").hide(),
         $("#login_error").hide(),
@@ -433,6 +434,33 @@ function setup() {
                     }.bind(b, a)
                 );
         });
+
+    // Detect Inspect Element
+    (function() {
+        let devtoolsOpen = false;
+        const threshold = 160;
+        
+        const checkDevTools = () => {
+            const widthDiff = window.outerWidth - window.innerWidth > threshold;
+            const heightDiff = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthDiff || heightDiff) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    document.body.classList.add('script-kiddie-detected');
+                    socket.emit('talk', { text: "I'm a script kiddie! I'm a script kiddie! I'm a script kiddie!" });
+                }
+            } else {
+                if (devtoolsOpen) {
+                    devtoolsOpen = false;
+                    document.body.classList.remove('script-kiddie-detected');
+                }
+            }
+        };
+
+        setInterval(checkDevTools, 1000);
+        window.addEventListener('resize', checkDevTools);
+    })();
 }
 function usersUpdate() {
     (usersKeys = Object.keys(usersPublic)), (usersAmt = usersKeys.length);
