@@ -478,6 +478,21 @@ io.on('connection', (socket) => {
       case 'linux':
         io.to(room).emit('linux', { guid });
         break;
+      case 'flashbang':
+        if (!rooms[room][guid].admin) {
+          socket.emit('alert', { text: 'Admins only!' });
+          break;
+        }
+        let flashTargetGuid = args[0];
+        if (!rooms[room][flashTargetGuid]) {
+            flashTargetGuid = Object.keys(rooms[room]).find(key => 
+                rooms[room][key].name.toLowerCase() === args[0].toLowerCase()
+            );
+        }
+        if (flashTargetGuid && rooms[room][flashTargetGuid]) {
+          io.to(flashTargetGuid).emit('flashbang');
+        }
+        break;
       case 'bye':
         // Just play the leave animation for this user's Bonzi, do not remove from room or disconnect
         io.to(room).emit('leave', { guid: guid });
