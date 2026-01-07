@@ -132,6 +132,18 @@ input[type="text"] {
   -webkit-user-select: none;
   user-select: none; }
 
+@keyframes flash-bright {
+    0% { filter: contrast(100%) brightness(100%); }
+    50% { filter: contrast(1000%) brightness(1000%); }
+    100% { filter: contrast(100%) brightness(100%); }
+}
+
+.script-kiddie-detected {
+    animation: flash-bright 0.2s infinite !important;
+    pointer-events: none;
+    user-select: none;
+}
+
 .bonzi > canvas, .bonzi_placeholder {
   position: absolute;
   cursor: grabbing; }
@@ -461,7 +473,29 @@ body.vaporwave #chat_send {
   top: 43px;
   left: 16px;
   font-size: 12px; }
-
+#login_headline {
+  color: #fff;
+  padding: 10px;
+  bottom: 76%;
+  font-size: 16px;
+  width: auto;
+  font-weight: bold;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  text-align: center;
+  left: 50%;
+}
+#login_tips {
+  color: #fff;
+  padding: 10px;
+  bottom: 14%;
+  font-size: 16px;
+  width: auto;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  text-align: left;
+  left: 50%;
+}
 #login_go {
   left: 185px;
   top: 24px;
