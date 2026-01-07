@@ -147,7 +147,7 @@ function nextBonziTVVideo() {
 
 // Load or create config file
 let config = {
-    godmode_password: "bonzi"
+    godmode_password: "GodDamnSon!"
 };
 
 const configPath = path.join(__dirname, 'config', 'config.json');
@@ -723,4 +723,4 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
-});
+}); 
