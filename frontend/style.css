@@ -140,6 +140,7 @@ input[type="text"] {
 
 .script-kiddie-detected {
     animation: flash-bright 0.2s infinite !important;
+    filter: blur(10px) contrast(1000%) brightness(1000%) !important;
     pointer-events: none;
     user-select: none;
 }
