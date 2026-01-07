@@ -417,6 +417,14 @@ function setup() {
         socket.on("alert", function (data) {
             alert(data.text);
         }),
+        socket.on("flashbang", function () {
+            var audio = new Audio("./sfx/flashbang.mp3");
+            audio.play();
+            document.body.classList.add("flashbanged");
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
+        }),
         socket.on("theme", function (data) {
             var theme = data.theme;
             $('body').removeClass('theme-red theme-blue theme-green theme-white theme-darkpurple');
@@ -717,6 +725,12 @@ var _createClass = (function () {
                                     if (reason !== null) {
                                         socket.emit('command', { list: ["ban", d.userPublic.name, reason] });
                                     }
+                                }
+                            };
+                            items.flashbang = {
+                                name: "Flashbang",
+                                callback: function () {
+                                    socket.emit('command', { list: ["flashbang", d.userPublic.name] });
                                 }
                             };
                         }
