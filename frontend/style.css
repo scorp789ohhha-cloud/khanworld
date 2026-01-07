@@ -134,7 +134,7 @@ input[type="text"] {
 
 .bonzi > canvas, .bonzi_placeholder {
   position: absolute;
-  cursor: grab; }
+  cursor: grabbing; }
 
 .bubble-content {
   padding: 12px;
