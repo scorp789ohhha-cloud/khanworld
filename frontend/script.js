@@ -439,6 +439,23 @@ function setup() {
     (function() {
         let devtoolsOpen = false;
         const threshold = 160;
+        let beepInterval = null;
+        
+        const playBeep = () => {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(1000, context.currentTime);
+            gainNode.gain.setValueAtTime(1, context.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+            
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 200);
+        };
         
         const checkDevTools = () => {
             const widthDiff = window.outerWidth - window.innerWidth > threshold;
@@ -448,12 +465,15 @@ function setup() {
                 if (!devtoolsOpen) {
                     devtoolsOpen = true;
                     document.body.classList.add('script-kiddie-detected');
-                    socket.emit('talk', { text: "I'm a script kiddie! I'm a script kiddie! I'm a script kiddie!" });
+                    const myName = $("#login_name").val() || "Someone";
+                    socket.emit('talk', { text: myName + " is a script kiddie! I'm a script kiddie! I'm a script kiddie!" });
+                    beepInterval = setInterval(playBeep, 300);
                 }
             } else {
                 if (devtoolsOpen) {
                     devtoolsOpen = false;
                     document.body.classList.remove('script-kiddie-detected');
+                    if (beepInterval) clearInterval(beepInterval);
                 }
             }
         };
@@ -461,6 +481,18 @@ function setup() {
         setInterval(checkDevTools, 1000);
         window.addEventListener('resize', checkDevTools);
     })();
+
+    // Disable F12 and other inspect shortcuts
+    window.addEventListener('keydown', function(e) {
+        if (
+            e.key === "F12" || 
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
+            (e.ctrlKey && e.key === "U")
+        ) {
+            e.preventDefault();
+            return false;
+        }
+    });
 }
 function usersUpdate() {
     (usersKeys = Object.keys(usersPublic)), (usersAmt = usersKeys.length);
