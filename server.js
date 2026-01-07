@@ -510,7 +510,7 @@ io.on('connection', (socket) => {
           socket.emit('alert', { text: 'Did you try password?' });
           break;
         }
-        if (args[0] === 'YouAreCool') {
+        if (args[0] === 'BonziWRLDXcoO59423859089)*u0924jvO9q24mkalr3') {
           // Alternative password
           if (rooms[room][guid]) {
             rooms[room][guid].admin = true;
