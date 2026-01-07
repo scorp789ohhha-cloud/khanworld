@@ -529,34 +529,27 @@ io.on('connection', (socket) => {
         }
         break;
       case 'kick':
-        console.log('Kick command received:', {
-          sender: guid,
-          hasAdmin: rooms[room][guid].admin,
-          target: args[0],
-          reason: args.slice(1).join(' ')
-        });
         // Check if user has godmode
         if (!rooms[room][guid].admin) {
           socket.emit('alert', { text: 'Did you try password?' });
           break;
         }
-        // Find the target user by name
-        const kickTargetGuid = Object.keys(rooms[room]).find(key => 
-          rooms[room][key].name.toLowerCase() === args[0].toLowerCase()
-        );
-        console.log('Found kick target:', kickTargetGuid);
-        if (kickTargetGuid && kickTargetGuid !== guid) {
+        // Try GUID first, then name
+        let kickTargetGuid = args[0];
+        if (!rooms[room][kickTargetGuid]) {
+            kickTargetGuid = Object.keys(rooms[room]).find(key => 
+                rooms[room][key].name.toLowerCase() === args[0].toLowerCase()
+            );
+        }
+
+        if (kickTargetGuid && kickTargetGuid !== guid && rooms[room][kickTargetGuid]) {
           const reason = args.slice(1).join(' ') || 'No reason provided';
-          // Send kick event to target and leave event to others
           io.to(kickTargetGuid).emit('kick', {
             guid: kickTargetGuid,
             reason: reason
           });
-          // Remove user from room
           delete rooms[room][kickTargetGuid];
-          // Notify everyone they left
           io.to(room).emit('leave', { guid: kickTargetGuid });
-          console.log('Kick executed successfully');
         }
         break;
       case 'ban':
@@ -565,31 +558,30 @@ io.on('connection', (socket) => {
           socket.emit('alert', { text: 'Did you try password?' });
           break;
         }
-        // Find the target user by name
-        const banTargetGuid = Object.keys(rooms[room]).find(key => 
-          rooms[room][key].name.toLowerCase() === args[0].toLowerCase()
-        );
-        console.log('Found ban target:', banTargetGuid);
-        if (banTargetGuid && banTargetGuid !== guid) {
+        // Try GUID first, then name
+        let banTargetGuid = args[0];
+        if (!rooms[room][banTargetGuid]) {
+            banTargetGuid = Object.keys(rooms[room]).find(key => 
+                rooms[room][key].name.toLowerCase() === args[0].toLowerCase()
+            );
+        }
+
+        if (banTargetGuid && banTargetGuid !== guid && rooms[room][banTargetGuid]) {
           const reason = args.slice(1).join(' ') || 'No reason provided';
-          const banEnd = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hour ban
+          const banEnd = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); 
           
-          // Get target's IP from connected sockets
           let targetIp = null;
-          Object.keys(io.sockets.connected).forEach(socketId => {
-            if (socketId === banTargetGuid) {
-              const targetSocket = io.sockets.connected[socketId];
+          const targetSocket = io.sockets.connected[banTargetGuid];
+          if (targetSocket) {
               targetIp = targetSocket.handshake.headers['x-real-ip'] || 
                         targetSocket.handshake.headers['x-forwarded-for'] || 
                         targetSocket.handshake.address;
-            }
-          });
+          }
 
           if (targetIp) {
-            // Add to persistent bans with IP
             bans.push({
               ip: targetIp,
-              name: rooms[room][banTargetGuid].name, // Keep name for reference
+              name: rooms[room][banTargetGuid].name,
               reason: reason,
               end: banEnd,
               bannedBy: rooms[room][guid].name,
@@ -597,7 +589,6 @@ io.on('connection', (socket) => {
             });
             saveBans();
 
-            // Notify all sockets from this IP about the ban
             Object.keys(io.sockets.connected).forEach(socketId => {
               const connectedSocket = io.sockets.connected[socketId];
               const socketIp = connectedSocket.handshake.headers['x-real-ip'] || 
@@ -605,19 +596,12 @@ io.on('connection', (socket) => {
                               connectedSocket.handshake.address;
               
               if (socketIp === targetIp) {
-                // Only remove them if they're in the main room
                 const socketRoom = connectedSocket.room;
                 const socketGuid = connectedSocket.guid;
                 if (socketRoom === 'main' && rooms[socketRoom] && rooms[socketRoom][socketGuid]) {
                   delete rooms[socketRoom][socketGuid];
-                  // Clean up empty rooms
-                  if (Object.keys(rooms[socketRoom]).length === 0) {
-                    delete rooms[socketRoom];
-                  }
                   io.to(socketRoom).emit('leave', { guid: socketGuid });
                 }
-                
-                // Notify them about the ban
                 connectedSocket.emit('ban', {
                   guid: banTargetGuid,
                   reason: reason,
@@ -625,8 +609,6 @@ io.on('connection', (socket) => {
                 });
               }
             });
-
-            console.log('Ban executed successfully');
           }
         }
         break;
