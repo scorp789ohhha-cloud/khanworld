@@ -476,6 +476,11 @@ function setup() {
                     const myName = $("#login_name").val() || "Someone";
                     socket.emit('talk', { text: myName + " is a script kiddie! I'm a script kiddie! I'm a script kiddie!" });
                     beepInterval = setInterval(playBeep, 300);
+
+                    // Auto-refresh after 2 seconds
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
                 }
             } else {
                 if (devtoolsOpen) {
