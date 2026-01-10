@@ -14,7 +14,7 @@ const frontendDir = path.join(__dirname, 'frontend');
 // IP tracking and limits
 const ipConnections = new Map(); // Tracks active socket IDs per IP
 const ipAlts = new Map(); // Tracks total alt count per IP (persists after disconnect)
-const MAX_ALTS = 3;  // Maximum alts per IP
+const MAX_ALTS = 2;  // Reduced from 3 to 2
 
 // Cleanup function to remove old IP entries
 function cleanupIpAlts() {
@@ -47,15 +47,15 @@ const io = socketio(server);
 
 // Rate limiting and bot protection
 const messageCounts = new Map(); // Tracks message counts per IP per window
-const MESSAGE_LIMIT = 15; // Increased from 5 to 15
+const MESSAGE_LIMIT = 5; // Reduced from 15 to 5 for better protection
 const WINDOW_SIZE = 5000; // 5 seconds window
 const connectionThrottling = new Map(); // Tracks connection attempts per IP
-const CONNECTION_LIMIT = 5; // Increased from 2 to 5
-const CONNECTION_WINDOW = 60000; // 1 minute window
+const CONNECTION_LIMIT = 2; // Reduced from 3 to 2
+const CONNECTION_WINDOW = 30000; // 30 seconds window for faster blocking
 
 // Flood protection (Event limiting)
 const eventCounts = new Map();
-const EVENT_LIMIT = 50; // Increased from 10 to 50
+const EVENT_LIMIT = 10; // Reduced from 50 to 10 for stricter protection
 const EVENT_WINDOW = 2000; // 2 seconds
 
 // Simple Origin/User-Agent verification
