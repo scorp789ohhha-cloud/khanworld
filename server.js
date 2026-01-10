@@ -336,10 +336,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('talk', function(data) {
-    if (!checkRateLimit(clientIp)) {
-        socket.emit('alert', { text: 'You are sending messages too fast!' });
-        return;
-    }
     const room = socket.room;
     const guid = socket.guid;
     if (room && guid && typeof data.text === 'string') {
@@ -366,10 +362,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('command', function(data) {
-    if (!checkRateLimit(clientIp)) {
-        socket.emit('alert', { text: 'You are sending commands too fast!' });
-        return;
-    }
     if (!Array.isArray(data.list) || data.list.length === 0) return;
     const cmd = (data.list[0] || '').toLowerCase();
     const args = data.list.slice(1);
