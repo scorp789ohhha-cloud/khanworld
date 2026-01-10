@@ -514,14 +514,6 @@ function usersUpdate() {
 function sendInput() {
     var a = $("#chat_message").val();
     if (($("#chat_message").val(""), a.length > 0)) {
-        // Simple client-side rate limiting
-        var now = Date.now();
-        if (window.lastMessageTime && (now - window.lastMessageTime < 500)) {
-            console.warn("Slow down! You are sending messages too fast.");
-            return;
-        }
-        window.lastMessageTime = now;
-
         var b = youtubeParser(a);
         if (b) return void socket.emit("command", { list: ["youtube", b] });
         if ("/" == a.substring(1, 0)) {
