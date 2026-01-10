@@ -1,5 +1,5 @@
 // ===== CLIENT ALT LIMIT =====
-const ALT_LIMIT = 3;
+const ALT_LIMIT = 2;
 const ALT_KEY = "bonzi_alt_sessions";
 const ALT_ID = Math.random().toString(36).slice(2);
 
@@ -514,6 +514,14 @@ function usersUpdate() {
 function sendInput() {
     var a = $("#chat_message").val();
     if (($("#chat_message").val(""), a.length > 0)) {
+        // Simple client-side rate limiting
+        var now = Date.now();
+        if (window.lastMessageTime && (now - window.lastMessageTime < 500)) {
+            console.warn("Slow down! You are sending messages too fast.");
+            return;
+        }
+        window.lastMessageTime = now;
+
         var b = youtubeParser(a);
         if (b) return void socket.emit("command", { list: ["youtube", b] });
         if ("/" == a.substring(1, 0)) {
